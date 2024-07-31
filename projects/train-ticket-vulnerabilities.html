@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Ticket Booking System Vulnerability Analysis</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Train Ticket Booking System Vulnerability Analysis</h1>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Introduction</h2>
+            <p>This project is a train ticket booking system based on microservice architecture, comprising 41 microservices. The programming languages and frameworks used are:</p>
+            <ul>
+                <li>Java - Spring Boot, Spring Cloud</li>
+                <li>Node.js - Express</li>
+                <li>Python - Django</li>
+                <li>Go - Webgo</li>
+                <li>DB - MongoDB, MySQL</li>
+            </ul>
+            <p>This report identifies and analyzes major security vulnerabilities found within the system, mapped to the OWASP Top 10 categories.</p>
+        </section>
+
+        <section id="injection">
+            <h2>Server-Side and Client-Side Code Injection (OWASP A3: Injection)</h2>
+            <h3>Executive Summary</h3>
+            <p>This report identifies two high-severity vulnerabilities in the application: server-side code injection and client-side code injection. These vulnerabilities map directly to OWASP Top 10 categories A3: Injection and A4: Insecure Design. Exploitation could allow attackers to execute arbitrary code, leading to data theft, system compromise, and other serious consequences. Immediate remediation is strongly recommended.</p>
+            <h3>Vulnerability Details</h3>
+            <h4>Server-Side Code Injection (OWASP A3: Injection)</h4>
+            <ul>
+                <li><strong>Vulnerable endpoint:</strong> /api/v1/verifycode/generate</li>
+                <li><strong>Vulnerability type:</strong> Server-side code injection</li>
+                <li><strong>Severity:</strong> High</li>
+                <li><strong>Confidence:</strong> Firm</li>
+            </ul>
+            <p>The application evaluates user input in the /api/v1/verifycode/generate endpoint as code. This was demonstrated by injecting sleep commands in the URL query string, resulting in delayed response times.</p>
+            <h4>Impact</h4>
+            <ul>
+                <li>Data theft (user data, sensitive files)</li>
+                <li>System compromise (gaining unauthorized access, modifying system files)</li>
+                <li>Defacement of the website</li>
+                <li>Denial-of-service attacks</li>
+            </ul>
+            <h4>Recommendations</h4>
+            <ul>
+                <li>Implement proper input validation and sanitization:
+                    <pre><code>function validateInput($input) {
+    $allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+    if (ctype_alnum(str_replace('_', '', $input)) && strlen($input) <= 32) {
+        return true;
+    } else {
+        return false;
+    }
+}</code></pre>
+                </li>
+                <li>Use parameterized queries or prepared statements:
+                    <pre><code>$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();</code></pre>
+                </li>
+            </ul>
+            <h4>Client-Side Code Injection (OWASP A4: Insecure Design)</h4>
+            <ul>
+                <li><strong>Vulnerable file:</strong> client_collect.js</li>
+                <li><strong>Vulnerability type:</strong> Client-side code injection</li>
+                <li><strong>Severity:</strong> High</li>
+                <li><strong>Confidence:</strong> Firm</li>
+            </ul>
+            <p>The client_collect.js JavaScript file appears vulnerable to code injection through the YsbCaptcha cookie. Malicious code injected into the cookie could be executed when the script is loaded.</p>
+            <h4>Impact</h4>
+            <ul>
+                <li>Cross-site scripting (XSS) attacks (stealing cookies, session tokens, redirecting users)</li>
+                <li>Stealing sensitive information via web browser vulnerabilities</li>
+                <li>Manipulating the user interface for malicious purposes</li>
+            </ul>
+            <h4>Recommendations</h4>
+            <ul>
+                <li>Validate and sanitize cookies:
+                    <pre><code>function sanitizeCookie(cookieValue) {
+    return encodeURIComponent(cookieValue.replace(/[^a-zA-Z0-9_.-]/g, ''));
+}</code></pre>
+                </li>
+                <li>Implement a Content Security Policy (CSP):
+                    <pre><code>Content-Security-Policy: script-src 'self'</code></pre>
+                </li>
+            </ul>
+        </section>
+
+        <section id="idor">
+            <h2>Broken Access Control - IDOR (OWASP A5)</h2>
+            <h3>Executive Summary</h3>
+            <p>This report identifies a high-severity Broken Access Control vulnerability (A5 in OWASP Top 10) in the API of an order service. The vulnerability allows unauthorized deletion of orders due to inadequate authorization checks. Immediate remediation is strongly recommended.</p>
+            <h3>Affected Endpoints</h3>
+            <ul>
+                <li>GET /api/v1/orderservice/order/{order_id}</li>
+                <li>DELETE /api/v1/orderservice/order/{order_id}</li>
+            </ul>
+            <h3>Detailed Findings</h3>
+            <p><strong>Description:</strong> The DELETE endpoint does not enforce proper authorization checks, enabling unauthenticated users to delete orders.</p>
+            <p><strong>Impact:</strong> Unauthorized deletion of orders, data loss, potential disruption of business operations.</p>
+            <p><strong>POC:</strong></p>
+            <pre><code>GET /api/v1/orderservice/order/ HTTP/1.1
+Host: 139.196.152.44:32677
+
+DELETE /api/v1/orderservice/order/19269289-d445-455c-af41-a2510b0cb93d HTTP/1.1
+Host: 139.196.152.44:32677</code></pre>
+            <h3>Recommendations</h3>
+            <ul>
+                <li>Implement robust authorization checks for the DELETE endpoint, ensuring only authorized users can perform deletions.</li>
+                <li>Enforce user authentication and authorization mechanisms throughout the API.</li>
+                <li>Add missing security headers (e.g., Strict-Transport-Security, Content-Security-Policy, Referrer-Policy) to protect against common web attacks.</li>
+                <li>Implement proper input validation and sanitization for all user-provided data, especially in cookies, to prevent XSS attacks.</li>
+                <li>Review CORS configuration and restrict access to authorized origins.</li>
+                <li>Protect sensitive data in responses through encryption or masking.</li>
+                <li>Set secure attributes for session cookies (e.g., HttpOnly, Secure) to mitigate session hijacking risks.</li>
+            </ul>
+        </section>
+
+        <section id="csrf">
+            <h2>Broken Access Control: CSRF (OWASP A5)</h2>
+            <h3>Executive Summary</h3>
+            <p>A critical vulnerability has been identified in the application's security configuration. Cross-Site Request Forgery (CSRF) protection has been disabled, leaving the application susceptible to CSRF attacks. This vulnerability is categorized as high priority and falls under the OWASP Top 10 category of "A10:2021-Server-Side Request Forgery (SSRF)". Immediate remediation is strongly recommended.</p>
+            <h3>Vulnerability Details</h3>
+            <p><strong>Severity:</strong> High</p>
+            <p><strong>Category:</strong> Cross-Site Request Forgery (CSRF)</p>
+            <p><strong>OWASP Top 10 Classification:</strong> A10:2021-Server-Side Request Forgery (SSRF)</p>
+            <pre><code>Java
+@Override protected void configure(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity.httpBasic().disable()
+        // Close default CSRF
+        .csrf().disable() // Vulnerability: CSRF protection disabled
+        // Close session
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authorizeRequests()
+        .antMatchers(HttpMethod.GET, "/api/v1/adminbasicservice/adminbasic/stations").permitAll();
+}</code></pre>
+            <h3>Possible Outcomes</h3>
+            <ul>
+                <li>Unauthorized actions on behalf of authenticated users</li>
+                <li>Data theft or modification</li>
+                <li>Account takeover</li>
+                <li>Financial losses</li>
+                <li>Reputational damage</li>
+            </ul>
+            <h3>Recommendations</h3>
+            <ul>
+                <li>Enable CSRF Protection:
+                    <pre><code>// Remove the .csrf().disable() line to enable Spring Security's default CSRF protection.</code></pre>
+                </li>
+                <li>Implement CSRF Tokens:
+                    <pre><code>// Generate unguessable CSRF tokens for state-changing requests.
+// Include the tokens in both forms and corresponding HTTP requests.
+// Validate the tokens on the server-side to ensure authenticity.</code></pre>
+                </li>
+                <li>Review Sensitive Operations:
+                    <pre><code>// Ensure that sensitive operations are not performed using GET requests.
+// Use POST, PUT, or DELETE methods for state-changing actions.</code></pre>
+                </li>
+                <li>Penetration Testing:
+                    <pre><code>// Conduct thorough penetration testing to identify and address any additional vulnerabilities.</code></pre>
+                </li>
+                <li>Security Awareness:
+                    <pre><code>// Educate developers and security teams about CSRF attacks and prevention techniques.</code></pre>
+                </li>
+            </ul>
+            <h3>Additional Considerations</h3>
+            <ul>
+                <li>Regularly review and update security configurations.</li>
+                <li>Stay informed about the latest security threats and best practices.</li>
+                <li>Implement a comprehensive security testing and monitoring program.</li>
+            </ul>
+        </section>
+
+        <section id="hardcoded-credentials">
+            <h2>Broken Access Control: Hardcoded Credentials (OWASP A2)</h2>
+            <h3>Executive Summary</h3>
+            <p>A critical vulnerability has been discovered in the Train Ticket app due to the presence of hardcoded credentials in the source code. This vulnerability falls under the OWASP Top 10 category A7: Identification and Authentication Failures. It enables attackers to gain unauthorized access to user accounts, potentially leading to data breaches, fraud, and system compromise. Immediate remediation is imperative to mitigate this high-impact risk.</p>
+            <h3>Vulnerability Details</h3>
+            <p><strong>Severity:</strong> Critical</p>
+            <p><strong>Category:</strong> A7: Identification and Authentication Failures (OWASP Top 10)</p>
+            <pre><code>Java
+User user = User.builder()
+    .userId("4d2a46c7-71cb-4cf1-b5bb-b68406d9da6f")
+    .username("fdse_microservice")
+    .password(passwordEncoder.encode("111111"))
+    .build();
+
+User admin = User.builder()
+    .userId(UUID.randomUUID().toString())
+    .username("admin")
+    .password(passwordEncoder.encode("222222"))
+    .roles(new HashSet<>(Arrays.asList("ROLE_ADMIN")))
+    .build();</code></pre>
+            <h3>Possible Outcomes</h3>
+            <ul>
+                <li>Unauthorized access to user accounts, including privileged accounts</li>
+                <li>Data breaches, including theft of personal information and payment details</li>
+                <li>Fraudulent activities, such as booking unauthorized tickets or performing financial transactions</li>
+                <li>System compromise, potentially leading to complete control of the application</li>
+                <li>Compromise of other systems if credentials are reused</li>
+            </ul>
+            <h3>Recommendations</h3>
+            <ul>
+                <li>Revoke hardcoded credentials by removing them from the source code and invalidating them.</li>
+                <li>Prompt affected users to reset their passwords through a secure mechanism.</li>
+                <li>Implement secure storage for credentials using external configuration files, secrets management solutions, or environment variables.</li>
+                <li>Minimize access to credentials, granting access only to authorized personnel with secure access controls.</li>
+                <li>Conduct regular code reviews to identify and remediate hardcoded credentials before deployment.</li>
+                <li>Utilize static analysis tools to automatically detect hardcoded credentials and other vulnerabilities during development.</li>
+            </ul>
+        </section>
+
+        <section id="ssrf">
+            <h2>Server-Side Request Forgery (SSRF) - OWASP A10</h2>
+            <h3>Executive Summary</h3>
+            <p>SSRF flaws occur whenever a web application is fetching a remote resource without validating the user-supplied URL. It allows an attacker to coerce the application to send a crafted request to an unexpected destination, even when protected by a firewall, VPN, or another type of network access control list (ACL).</p>
+            <h3>Description</h3>
+            <p>SSRF vulnerabilities in modern web applications can lead to unauthorized access to sensitive internal resources or services, data exfiltration, and, in some cases, remote command execution.</p>
+            <h3>Possible Outcomes</h3>
+            <ul>
+                <li>Unauthorized access to sensitive internal resources or services</li>
+                <li>Data exfiltration from internal systems or third-party services</li>
+                <li>Remote command execution on internal systems in some cases</li>
+            </ul>
+            <h3>Recommendations</h3>
+            <ul>
+                <li>Whitelist Allowed Hosts:
+                    <pre><code>// Create a list of authorized and trusted service URLs.
+// Reject any tripId values that don't match the whitelisted URLs.</code></pre>
+                </li>
+                <li>Validate Input Thoroughly:
+                    <pre><code>// Sanitize tripId to allow only valid characters (alphanumeric, hyphens, etc.).
+// Enforce strict length limits for tripId.</code></pre>
+                </li>
+                <li>Use Pre-Configured URLs:
+                    <pre><code>// Remove direct construction of URLs from user input.
+// Hardcode service URLs or fetch them from a secure configuration source.</code></pre>
+                </li>
+            </ul>
+            <h3>Additional Considerations</h3>
+            <ul>
+                <li>Implement Additional Controls:
+                    <pre><code>// Consider using a web application firewall (WAF) with SSRF protection.
+// Monitor network traffic for unusual patterns that might indicate SSRF attacks.</code></pre>
+                </li>
+                <li>Regularly Review Whitelists:
+                    <pre><code>// Keep whitelists updated as service URLs change.</code></pre>
+                </li>
+                <li>Educate Developers:
+                    <pre><code>// Raise awareness about SSRF risks and secure coding practices.</code></pre>
+                </li>
+                <li>Penetration Testing:
+                    <pre><code>// Conduct regular penetration testing to identify potential SSRF vulnerabilities.</code></pre>
+                </li>
+            </ul>
+        </section>
+
+        <section id="tools">
+            <h2>Tools Used in the Project</h2>
+            <h3>Static Analysis Tools</h3>
+            <h4>SonarQube</h4>
+            <p>Analyzes code for vulnerabilities, bugs, and code quality issues. Supports multiple programming languages and integrates with development environments and CI/CD pipelines.</p>
+            <h4>Docker-Scout</h4>
+            <p>Specifically scans Docker images for vulnerabilities and misconfigurations. Checks for outdated packages and common security issues. Provides actionable remediation guidance.</p>
+            <h4>GitHub Action - CodeQL</h4>
+            <p>Integrates static analysis into GitHub workflows for continuous code scanning. Uses CodeQL, a powerful query language for identifying vulnerabilities. Offers customizable queries and reporting.</p>
+
+            <h3>Vulnerability Scanning and Network Mapping Tools</h3>
+            <h4>Shodan</h4>
+            <p>Search engine for discovering devices and services connected to the internet. Reveals potential security risks in exposed systems. Used for reconnaissance and threat intelligence.</p>
+            <h4>Nmap</h4>
+            <p>Network scanning tool for identifying hosts, open ports, services, and vulnerabilities. Versatile for network discovery, mapping, and vulnerability assessment.</p>
+
+            <h3>Web Application Security Testing Tools</h3>
+            <h4>Burp Suite Professional</h4>
+            <p>Comprehensive suite for web application security testing. Includes features for intercepting proxy, vulnerability scanning, manual testing tools, and reporting. Widely used for manual and automated vulnerability discovery and exploitation.</p>
+
+            <h3>Conclusion</h3>
+            <p>Static analysis tools examine code without executing it, focusing on code structure and potential flaws. Vulnerability scanning tools actively probe systems or applications to detect known vulnerabilities. Web application security testing tools specialize in identifying vulnerabilities in web applications, often involving manual exploration and exploitation techniques.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Yuval Sigura</p>
+    </footer>
+</body>
+</html>
