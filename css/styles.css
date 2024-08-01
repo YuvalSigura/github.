@@ -39,6 +39,12 @@ nav ul li {
 nav ul li a {
     text-decoration: none;
     color: #76FF03;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    color: #ffffff;
 }
 
 main {
@@ -101,4 +107,10 @@ a {
 #projects ul li a {
     text-decoration: none;
     font-size: 1.2em;
+    color: #76FF03;
+    transition: color 0.3s;
+}
+
+#projects ul li a:hover {
+    color: #ffffff;
 }
