@@ -1,0 +1,90 @@
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+header {
+    background-color: #1e1e1e;
+    padding: 1em 0;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    color: #76FF03;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 1em;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #76FF03;
+}
+
+main {
+    padding: 2em;
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+section h2 {
+    font-size: 2em;
+    color: #76FF03;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5em;
+}
+
+footer {
+    text-align: center;
+    padding: 1em 0;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+}
+
+footer p {
+    margin: 0;
+    color: #ffffff;
+}
+
+a {
+    color: #76FF03;
+}
+
+/* Project Details */
+section ul {
+    list-style-type: disc;
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+section ul li {
+    margin-bottom: 0.5em;
+}
+
+pre code {
+    display: block;
+    background-color: #1e1e1e;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+pre code span {
+    color: #76FF03;
+}
