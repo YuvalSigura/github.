@@ -36,11 +36,13 @@ nav ul {
     list-style-type: none;
     padding: 0;
     margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 nav ul li {
-    display: inline;
-    margin: 0 15px;
+    margin: 5px 15px;
 }
 
 nav ul li a {
@@ -144,4 +146,19 @@ button {
 
 button:hover {
     background-color: #007acc;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    main {
+        padding: 10px;
+    }
+
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav ul li {
+        margin: 5px 0;
+    }
 }
