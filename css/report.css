@@ -35,6 +35,11 @@ nav ul li a {
     text-decoration: none;
     color: #76FF03;
     font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    color: #ffffff;
 }
 
 main {
@@ -83,6 +88,7 @@ pre {
     border: 1px solid #ddd;
     padding: 1em;
     overflow-x: auto;
+    border-radius: 5px;
 }
 
 code {
