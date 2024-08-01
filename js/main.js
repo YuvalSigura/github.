@@ -1,76 +1,59 @@
-// main.js
+import * as THREE from './three.min.js';
+import { GLTFLoader } from './GLTFLoader.js';
+import { OrbitControls } from './OrbitControls.js';
 
-// Scene setup
+// Create the scene
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+// Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
+camera.position.set(0, 20, 50);
+
+// Create a renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('map-container').appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
-// Controls
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+// Add controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.25;
+controls.enableZoom = true;
 
-// Light
-const ambientLight = new THREE.AmbientLight(0x404040);
-scene.add(ambientLight);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 10, 7.5);
-scene.add(directionalLight);
-
-// Load map texture
+// Load texture
 const textureLoader = new THREE.TextureLoader();
-const mapTexture = textureLoader.load('assets/map-texture.jpg', () => {
-    const mapGeometry = new THREE.PlaneGeometry(10, 10);
-    const mapMaterial = new THREE.MeshBasicMaterial({ map: mapTexture });
-    const mapMesh = new THREE.Mesh(mapGeometry, mapMaterial);
-    scene.add(mapMesh);
+const mapTexture = textureLoader.load('./assets/map-texture.jpg', function (texture) {
+    const material = new THREE.MeshBasicMaterial({ map: texture });
+    const geometry = new THREE.PlaneGeometry(100, 100);
+    const plane = new THREE.Mesh(geometry, material);
+    plane.rotation.x = -Math.PI / 2;
+    scene.add(plane);
 });
 
 // Load marker model
-const loader = new THREE.GLTFLoader();
-loader.load('assets/marker-model.glb', (gltf) => {
-    const markerModel = gltf.scene;
-    markerModel.position.set(0, 0.5, 0);
-    scene.add(markerModel);
-
-    // Interactivity
-    markerModel.traverse((child) => {
-        if (child.isMesh) {
-            child.userData = { URL: 'projects/train-ticket-analysis.html' };
-        }
-    });
-
-    // Mouse interaction
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    function onMouseMove(event) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 0.5;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 0.5;
-    }
-
-    function onClick(event) {
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(scene.children, true);
-        if (intersects.length > 0) {
-            const intersect = intersects[0];
-            if (intersect.object.userData.URL) {
-                window.location.href = intersect.object.userData.URL;
-            }
-        }
-    }
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('click', onClick);
+const loader = new GLTFLoader();
+loader.load('./assets/marker-model.glb', function (gltf) {
+    const marker = gltf.scene;
+    marker.scale.set(0.1, 0.1, 0.1);
+    marker.position.set(0, 1, 0);
+    scene.add(marker);
+}, undefined, function (error) {
+    console.error(error);
 });
 
-// Set camera position
-camera.position.z = 5;
+// Handle window resize
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
-// Render loop
+// Animate the scene
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
 }
+
 animate();
