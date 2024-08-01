@@ -1,59 +1,35 @@
-import * as THREE from './three.min.js';
-import { GLTFLoader } from './GLTFLoader.js';
-import { OrbitControls } from './OrbitControls.js';
+// js/main.js
 
-// Create the scene
+// Initialize scene, camera, and renderer
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
-
-// Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 20, 50);
-
-// Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Add controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.enableZoom = true;
+// Add ambient light
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
 
-// Load texture
-const textureLoader = new THREE.TextureLoader();
-const mapTexture = textureLoader.load('./assets/map-texture.jpg', function (texture) {
-    const material = new THREE.MeshBasicMaterial({ map: texture });
-    const geometry = new THREE.PlaneGeometry(100, 100);
-    const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
-    scene.add(plane);
-});
+// Add directional light
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+scene.add(directionalLight);
 
-// Load marker model
-const loader = new GLTFLoader();
-loader.load('./assets/marker-model.glb', function (gltf) {
-    const marker = gltf.scene;
-    marker.scale.set(0.1, 0.1, 0.1);
-    marker.position.set(0, 1, 0);
-    scene.add(marker);
-}, undefined, function (error) {
-    console.error(error);
-});
+// Add a cube to the scene
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
-// Handle window resize
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+// Position the camera
+camera.position.z = 5;
 
-// Animate the scene
+// Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
     renderer.render(scene, camera);
 }
-
 animate();
