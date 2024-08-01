@@ -1,29 +1,31 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #1a1a1a;
-    color: white;
+    background-color: #121212;
+    color: #ffffff;
     position: relative;
-    overflow-x: hidden; /* Ensure no horizontal overflow */
+    overflow-x: hidden;
 }
 
 #particles-js {
     position: fixed;
     width: 100%;
     height: 100%;
-    background-color: #1a1a1a;
+    background-color: #121212;
     z-index: -1;
 }
 
 header {
-    background-color: transparent;
-    color: white;
+    background-color: #1c1c1c;
+    color: #ffffff;
     padding: 20px;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 header h1, header h2 {
@@ -42,12 +44,13 @@ nav ul li {
 }
 
 nav ul li a {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
+    transition: color 0.3s;
 }
 
 nav ul li a:hover {
-    text-decoration: underline;
+    color: #00aaff;
 }
 
 main {
@@ -56,19 +59,23 @@ main {
     text-align: left;
     margin: auto;
     max-width: 800px;
-    z-index: 1; /* Ensure main content is above particles */
+    z-index: 1;
 }
 
 footer {
-    background-color: transparent;
-    color: white;
+    background-color: #1c1c1c;
+    color: #ffffff;
     padding: 10px;
     text-align: center;
-    z-index: 1; /* Ensure footer content is above particles */
+    z-index: 1;
 }
 
 section {
     margin-bottom: 40px;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 ul {
@@ -80,7 +87,7 @@ ul li {
 }
 
 a {
-    color: #007bff;
+    color: #00aaff;
     text-decoration: none;
 }
 
@@ -89,16 +96,16 @@ a:hover {
 }
 
 h2 {
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #00aaff;
     padding-bottom: 5px;
 }
 
 .project {
-    border: 1px solid #ddd;
+    border: 1px solid #333;
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 5px;
-    background-color: #333;
+    background-color: #2b2b2b;
 }
 
 .project h3 {
@@ -106,7 +113,7 @@ h2 {
 }
 
 .project-link {
-    color: #007bff;
+    color: #00aaff;
     text-decoration: none;
 }
 
@@ -117,4 +124,24 @@ h2 {
 nav ul li a.active {
     font-weight: bold;
     text-decoration: underline;
+}
+
+/* Button Styles */
+button {
+    background-color: #00aaff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #007acc;
 }
