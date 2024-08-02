@@ -1,0 +1,31 @@
+{
+    "name": "my-portfolio-website",
+    "version": "1.0.0",
+    "description": "A 3D portfolio website focusing on cyber ethical hacking and AI.",
+    "main": "index.js",
+    "homepage": "https://aitlv.com",
+    "scripts": {
+      "start": "webpack serve --mode development",
+      "build": "webpack --mode production",
+      "predeploy": "npm run build",
+      "deploy": "gh-pages -d dist"
+    },
+    "dependencies": {
+      "react": "^17.0.2",
+      "react-dom": "^17.0.2",
+      "three": "^0.132.2",
+      "@react-three/drei": "^5.3.1"
+    },
+    "devDependencies": {
+      "webpack": "^5.52.1",
+      "webpack-cli": "^4.8.0",
+      "webpack-dev-server": "^4.1.1",
+      "babel-loader": "^8.2.2",
+      "css-loader": "^6.2.0",
+      "style-loader": "^3.2.1",
+      "gh-pages": "^3.2.3"
+    },
+    "author": "Your Name",
+    "license": "MIT"
+  }
+  
